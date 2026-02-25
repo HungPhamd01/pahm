@@ -29,7 +29,7 @@ export default class App extends React.Component {
 * Nhưng bạn yên tâm đi, mình vẫn có thể viết code đơn giản và làm website hoạt động bình thường
 * Nhân đây mình quảng cáo một chút,...
 * Mình nhận thiết kế thiệp cưới "online" và bán file thiệp mẫu nếu bạn cần gấp giá chỉ từ 100k thôi nhé :P
-* Bạn có thể inbox mình qua facebook hoặc gửi zalo " 0372.116.093 " cho mình nhé.
+* Bạn có thể inbox mình qua facebook
 Mình có món quà tặng bạn, đó là một trang web nhỏ xinh xắn này, mình sẽ dạy bạn cách làm nó hoạt động nhé.
 * Có vẻ,.. bạn đang sử dụng。。。${isPc ? 'máy tính' : 'điện thoại'}
 */
