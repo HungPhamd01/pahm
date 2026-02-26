@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>valentine.html — tự code chính nó 💻</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=Fraunces:ital,wght@0,300;0,600;1,300;1,500&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root{
+  --bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--border:#21262d;
+  --text:#e6edf3;--dim:#6e7681;--dim2:#8b949e;
+  --pink:#ff6b8a;--deep:#e0455a;
+  --c-comment:#6a737d;--c-kw:#f97583;--c-sel:#85e89d;
+  --c-prop:#b392f0;--c-val:#79b8ff;--c-str:#9ecbff;
+  --c-at:#ffab70;--c-punct:#e1e4e8;--cursor:#58a6ff;
+}
+
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Fira Code',monospace;}
+.app{display:flex;flex-direction:column;height:100vh;}
+
+/* TITLEBAR */
+.titlebar{
+  height:38px;background:#010409;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0;user-select:none;
+}
+.wdot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.wdot.r{background:#ff5f57;}.wdot.y{background:#febc2e;}.wdot.g{background:#28c840;}
+.tabs{display:flex;margin-left:16px;}
+.tab{
+  padding:0 16px;height:38px;line-height:38px;font-size:12px;
+  color:var(--dim);border-right:1px solid var(--border);cursor:default;position:relative;
+}
+.tab.active{color:var(--text);background:var(--bg);}
+.tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--pink);}
+.titlebar-right{margin-left:auto;font-size:11px;color:var(--dim);display:flex;gap:20px;}
+
+.editor-body{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{
+  width:190px;flex-shrink:0;background:var(--panel);
+  border-right:1px solid var(--border);padding:10px 0;font-size:12px;
+}
+.sidebar-title{padding:6px 16px;color:var(--dim);letter-spacing:1px;font-size:10px;text-transform:uppercase;}
+.sidebar-file{padding:4px 16px 4px 28px;color:var(--dim2);cursor:default;display:flex;align-items:center;gap:8px;}
+.sidebar-file.active{background:rgba(255,107,138,.08);color:var(--pink);}
+.sidebar-file .dot{width:6px;height:6px;border-radius:50%;background:var(--pink);flex-shrink:0;}
+
+.main{display:flex;flex:1;overflow:hidden;}
+
+/* CODE PANE */
+.code-pane{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  padding:14px 0;scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+}
+.code-pane::-webkit-scrollbar{width:6px;}
+.code-pane::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.cl{display:flex;min-height:20px;line-height:20px;font-size:13px;}
+.cl:hover{background:rgba(255,255,255,.025);}
+.ln{width:48px;text-align:right;padding-right:18px;color:var(--dim);font-size:11px;flex-shrink:0;user-select:none;line-height:20px;}
+.lc{flex:1;white-space:pre;overflow:hidden;padding-right:20px;}
+.tk-c{color:var(--c-comment);font-style:italic;}
+.tk-k{color:var(--c-kw);}
+.tk-s{color:var(--c-sel);font-weight:500;}
+.tk-p{color:var(--c-prop);}
+.tk-v{color:var(--c-val);}
+.tk-q{color:var(--c-str);}
+.tk-a{color:var(--c-at);font-weight:600;}
+.tk-n{color:var(--c-punct);}
+.tk-m{color:#ffd6e7;}
+.cur{
+  display:inline-block;width:2px;height:14px;
+  background:var(--cursor);vertical-align:middle;margin-left:1px;
+  animation:cur-blink .85s ease-in-out infinite;
+}
+@keyframes cur-blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+/* PREVIEW PANE */
+.preview-pane{
+  width:400px;flex-shrink:0;display:flex;flex-direction:column;
+  background:#08000f;border-left:1px solid var(--border);overflow:hidden;
+}
+.preview-bar{
+  background:var(--panel2);border-bottom:1px solid var(--border);
+  padding:5px 14px;font-size:11px;color:var(--dim);
+  display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+.live-dot{
+  width:7px;height:7px;border-radius:50%;background:#7ee787;
+  box-shadow:0 0 6px #7ee787;animation:live-pulse 2s ease-in-out infinite;
+}
+@keyframes live-pulse{0%,100%{box-shadow:0 0 5px #7ee787}50%{box-shadow:0 0 14px #7ee787}}
+
+.preview-scroll{
+  flex:1;overflow-y:auto;display:flex;flex-direction:column;
+  align-items:center;padding:18px 16px 14px;gap:16px;
+  scrollbar-width:thin;scrollbar-color:#220022 transparent;
+}
+
+/* LIVE MESSAGE */
+#live-msg{
+  width:100%;max-width:330px;flex-shrink:0;
+  background:linear-gradient(135deg,rgba(255,240,245,0.06),rgba(255,220,235,0.04));
+  border-left:3px solid var(--pink);border-radius:0 10px 10px 0;
+  padding:14px 16px 12px;
+  font-family:'Fraunces',serif;font-size:13px;line-height:1.9;
+  color:#ffb3c8;
+  opacity:0;transform:translateY(14px);
+  transition:opacity .6s ease,transform .6s ease;
+  box-shadow:0 4px 24px rgba(255,107,138,.08);
+}
+#live-msg.show{opacity:1;transform:translateY(0);}
+.ml{display:block;opacity:0;transform:translateX(-8px);transition:opacity .45s,transform .45s;}
+.ml.in{opacity:1;transform:translateX(0);}
+
+/* 3D HEART CANVAS CONTAINER */
+#heart3d-wrap{
+  width:100%;flex:1;min-height:220px;position:relative;
+  opacity:0;transition:opacity 1s ease;
+  border-radius:10px;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 38%,#1c0030 0%,#08000f 70%);
+}
+#heart3d-wrap.show{opacity:1;}
+#heart3d-canvas{display:block;width:100%!important;height:100%!important;}
+
+/* step label over canvas */
+#step-tag{
+  position:absolute;bottom:10px;left:0;right:0;
+  text-align:center;
+  font-family:'Fira Code',monospace;font-size:10px;
+  color:rgba(255,179,198,.45);letter-spacing:.5px;
+  pointer-events:none;transition:opacity .4s;
+}
+#step-tag .hl{color:var(--pink);}
+
+/* STATUS BAR */
+.statusbar{
+  height:22px;background:var(--deep);
+  display:flex;align-items:center;padding:0 14px;
+  font-size:11px;color:#fff;gap:16px;flex-shrink:0;
+}
+.sb-right{margin-left:auto;display:flex;gap:16px;}
+
+@media(max-width:760px){
+  .sidebar{display:none;}
+  .preview-pane{width:44%;}
+  .cl{font-size:11px;}
+  .ln{width:32px;padding-right:10px;}
+}
+@media(max-width:500px){.preview-pane{display:none;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TITLEBAR -->
+<div class="titlebar">
+  <div class="wdot r"></div><div class="wdot y"></div><div class="wdot g"></div>
+  <div class="tabs"><div class="tab active">❤&nbsp;valentine.html</div></div>
+  <div class="titlebar-right">
+    <span id="tb-chars">0 chars</span>
+    <span id="tb-ln">Ln 1  Col 1</span>
+  </div>
+</div>
+
+<div class="editor-body">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-title">Explorer</div>
+    <div class="sidebar-file active"><div class="dot"></div>valentine.html</div>
+    <div class="sidebar-file" style="color:var(--dim);padding-left:36px;font-size:11px;">heart.glsl</div>
+    <div class="sidebar-file" style="color:var(--dim);padding-left:36px;font-size:11px;">style.css</div>
+  </div>
+
+  <div class="main">
+    <!-- CODE PANE -->
+    <div class="code-pane" id="editor"></div>
+
+    <!-- PREVIEW PANE -->
+    <div class="preview-pane">
+      <div class="preview-bar">
+        <div class="live-dot"></div>
+        <span>Live Preview</span>
+        <span style="margin-left:auto;color:#7ee787;" id="pv-status">Đang chờ...</span>
+      </div>
+      <div class="preview-scroll">
+        <div id="live-msg"></div>
+        <div id="heart3d-wrap">
+          <canvas id="heart3d-canvas"></canvas>
+          <div id="step-tag">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <span>HTML</span><span>UTF-8</span>
+  <span id="sb-status">Khởi động...</span>
+  <div class="sb-right">
+    <span id="sb-pct">0%</span>
+    <span>valentine.html</span>
+  </div>
+</div>
+</div>
+
+<!-- THREE.JS CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  3D HEART — bold, clear, beautiful. No glass complexity.
+// ═══════════════════════════════════════════════════════════════
+(function(){
+  const wrap = document.getElementById('heart3d-wrap');
+  const cvs  = document.getElementById('heart3d-canvas');
+  const W = () => wrap.clientWidth  || 380;
+  const H = () => wrap.clientHeight || 280;
+
+  const renderer = new THREE.WebGLRenderer({ canvas: cvs, antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setClearColor(0x08000e, 1);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setSize(W(), H(), false);
+
+  const scene = new THREE.Scene();
+  const cam   = new THREE.PerspectiveCamera(38, W()/H(), 0.1, 50);
+  cam.position.set(0, 0.2, 5.5);
+
+  function onResize(){ const w=W(),h=H(); renderer.setSize(w,h,false); cam.aspect=w/h; cam.updateProjectionMatrix(); }
+  new ResizeObserver(onResize).observe(wrap);
+
+  // ── Dark background with soft vignette sphere
+  const bgMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    uniforms: { uTime:{value:0} },
+    vertexShader: `varying vec3 vP; void main(){ vP=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader: `
+      uniform float uTime; varying vec3 vP;
+      void main(){
+        vec3 d=normalize(vP);
+        float y=d.y*.5+.5;
+        vec3 top=vec3(.18,.01,.08);
+        vec3 bot=vec3(.04,.00,.10);
+        vec3 col=mix(bot,top,y);
+        // slow drifting pink highlight
+        float h=pow(max(0.,dot(d,normalize(vec3(sin(uTime*.3),.5,cos(uTime*.3))))),10.);
+        col+=vec3(.55,.08,.22)*h*.6;
+        gl_FragColor=vec4(col,1.);
+      }`,
+  });
+  scene.add(new THREE.Mesh(new THREE.SphereGeometry(20,32,16), bgMat));
+
+  // ── Heart geometry
+  function buildGeo(){
+    const S=120, D=50;
+    const pos=[], nor=[], uv=[], idx=[];
+    for(let d=0;d<=D;d++){
+      const df=d/D;
+      const taper=Math.sin(df*Math.PI);
+      const z=(df-.5)*1.15;
+      for(let s=0;s<=S;s++){
+        const t=(s/S)*Math.PI*2;
+        const x=16*Math.pow(Math.sin(t),3);
+        const y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+        pos.push(x*.077*taper, y*.077*taper, z);
+        uv.push(s/S, d/D);
+        nor.push(x,y,0);
+      }
+    }
+    pos.push(0,.66, .58); nor.push(0,0, 1); uv.push(.5,.5);
+    pos.push(0,.66,-.58); nor.push(0,0,-1); uv.push(.5,.5);
+    const fci=(D+1)*(S+1), bci=fci+1;
+    for(let d=0;d<D;d++) for(let s=0;s<S;s++){
+      const a=d*(S+1)+s,b=a+1,c=a+(S+1),dd=c+1;
+      idx.push(a,b,dd,a,dd,c);
+    }
+    for(let s=0;s<S;s++){const a=D*(S+1)+s;idx.push(fci,a,a+1);}
+    for(let s=0;s<S;s++) idx.push(bci,s+1,s);
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+    geo.setAttribute('normal',  new THREE.Float32BufferAttribute(nor,3));
+    geo.setAttribute('uv',      new THREE.Float32BufferAttribute(uv, 2));
+    geo.setIndex(idx);
+    geo.computeVertexNormals();
+    geo.computeBoundingBox();
+    const cen=new THREE.Vector3(); geo.boundingBox.getCenter(cen);
+    geo.translate(-cen.x,-cen.y,-cen.z);
+    return geo;
+  }
+  const geo = buildGeo();
+
+  // ── STEP 1: Wireframe
+  const wireMat = new THREE.MeshBasicMaterial({ color:0xff6b8a, wireframe:true, transparent:true, opacity:0 });
+  const wireMesh = new THREE.Mesh(geo, wireMat);
+
+  // ── STEP 2: Solid fill — bright opaque red heart
+  const heartMat = new THREE.MeshPhongMaterial({
+    color:     new THREE.Color(0xdd2244),
+    emissive:  new THREE.Color(0x550010),
+    specular:  new THREE.Color(0xffffff),
+    shininess: 120,
+    transparent: false,
+    visible: false,
+  });
+  const heartMesh = new THREE.Mesh(geo, heartMat);
+  heartMesh.castShadow = true;
+
+  // ── STEP 3: Gradient — top lighter, bottom deeper (vertex color via shader)
+  const gradMat = new THREE.ShaderMaterial({
+    uniforms: { uTime:{value:0}, uVisible:{value:0.} },
+    vertexShader:`
+      varying vec3 vNormal; varying vec3 vWorldPos; varying vec2 vUv;
+      void main(){
+        vNormal=normalize(normalMatrix*normal);
+        vWorldPos=(modelMatrix*vec4(position,1.)).xyz;
+        vUv=uv;
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);
+      }`,
+    fragmentShader:`
+      precision highp float;
+      varying vec3 vNormal; varying vec3 vWorldPos; varying vec2 vUv;
+      uniform float uTime; uniform float uVisible;
+      void main(){
+        if(uVisible<.5) discard;
+        vec3 N=normalize(vNormal);
+        // Gradient: bright coral top → deep crimson bottom
+        vec3 colTop=vec3(.97,.28,.42);
+        vec3 colBot=vec3(.55,.03,.14);
+        float h=clamp(vUv.y,0.,1.);
+        vec3 base=mix(colBot,colTop,h);
+        // Key light
+        vec3 L1=normalize(vec3(3.,5.,6.));
+        float d1=max(dot(N,L1),0.);
+        vec3 H1=normalize(L1+vec3(0.,0.,1.));
+        float s1=pow(max(dot(N,H1),0.),80.)*1.4;
+        // Fill light
+        vec3 L2=normalize(vec3(-3.,1.,2.));
+        float d2=max(dot(N,L2),0.)*.4;
+        // Rim light
+        vec3 L3=normalize(vec3(0.,-1.,-3.));
+        float rim=pow(1.-max(dot(N,vec3(0.,0.,1.)),0.),2.5)*.5;
+        vec3 col=base*(0.3+d1*.7+d2)
+               + vec3(1.,.9,.95)*s1
+               + vec3(.9,.3,.5)*rim;
+        gl_FragColor=vec4(col,1.);
+      }`,
+    side: THREE.FrontSide,
+    visible: false,
+  });
+  const gradMesh = new THREE.Mesh(geo, gradMat);
+  gradMesh.castShadow = true;
+
+  // ── STEP 4: Glow overlay (additive, scales up per step)
+  const glowMat = new THREE.ShaderMaterial({
+    uniforms: { uTime:{value:0}, uIntensity:{value:0.} },
+    vertexShader:`
+      varying vec3 vNormal; varying vec3 vView;
+      void main(){
+        vNormal=normalize(normalMatrix*normal);
+        vView=normalize(-(modelViewMatrix*vec4(position,1.)).xyz);
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);
+      }`,
+    fragmentShader:`
+      precision highp float;
+      varying vec3 vNormal; varying vec3 vView;
+      uniform float uTime; uniform float uIntensity;
+      void main(){
+        float rim=pow(1.-max(dot(normalize(vNormal),normalize(vView)),0.),2.0);
+        float pulse=sin(uTime*2.)*0.15+0.85;
+        vec3 col=mix(vec3(.9,.2,.4),vec3(1.,.65,.75),rim)*pulse;
+        float a=rim*uIntensity*0.9;
+        gl_FragColor=vec4(col,a);
+      }`,
+    transparent: true,
+    side: THREE.FrontSide,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const glowMesh = new THREE.Mesh(geo, glowMat);
+  glowMesh.scale.setScalar(1.01);
+  glowMesh.renderOrder = 1;
+
+  // ── STEP 4: Outer glow halo (slightly enlarged, back-face additive)
+  const haloMat = new THREE.ShaderMaterial({
+    uniforms: { uTime:{value:0}, uIntensity:{value:0.} },
+    vertexShader:`
+      varying vec3 vNormal; varying vec3 vView;
+      void main(){
+        vNormal=normalize(normalMatrix*normal);
+        vView=normalize(-(modelViewMatrix*vec4(position,1.)).xyz);
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);
+      }`,
+    fragmentShader:`
+      precision highp float;
+      varying vec3 vNormal; varying vec3 vView;
+      uniform float uTime; uniform float uIntensity;
+      void main(){
+        float f=1.-max(dot(normalize(vNormal),normalize(vView)),0.);
+        float halo=pow(f,1.5);
+        float pulse=sin(uTime*1.7+1.5)*.2+.8;
+        vec3 col=vec3(.95,.25,.45)*pulse;
+        gl_FragColor=vec4(col, halo*uIntensity*0.55);
+      }`,
+    transparent: true,
+    side: THREE.BackSide,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const haloMesh = new THREE.Mesh(geo, haloMat);
+  haloMesh.scale.setScalar(1.14);
+  haloMesh.renderOrder = 0;
+
+  // ── STEP 5: Specular shine highlight
+  const shineMat = new THREE.ShaderMaterial({
+    uniforms: { uTime:{value:0}, uIntensity:{value:0.} },
+    vertexShader:`
+      varying vec3 vNormal; varying vec3 vView;
+      void main(){
+        vNormal=normalize(normalMatrix*normal);
+        vView=normalize(-(modelViewMatrix*vec4(position,1.)).xyz);
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);
+      }`,
+    fragmentShader:`
+      precision highp float;
+      varying vec3 vNormal; varying vec3 vView;
+      uniform float uTime; uniform float uIntensity;
+      void main(){
+        vec3 N=normalize(vNormal); vec3 V=normalize(vView);
+        vec3 L=normalize(vec3(2.5,3.,5.));
+        vec3 H=normalize(L+V);
+        float s=pow(max(dot(N,H),0.),160.)*2.5;
+        // secondary softer highlight
+        vec3 L2=normalize(vec3(-2.,1.,3.));
+        vec3 H2=normalize(L2+V);
+        float s2=pow(max(dot(N,H2),0.),60.)*0.8;
+        vec3 col=vec3(1.,.9,.95)*(s+s2);
+        gl_FragColor=vec4(col, (s+s2*.5)*uIntensity);
+      }`,
+    transparent: true,
+    side: THREE.FrontSide,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const shineMesh = new THREE.Mesh(geo, shineMat);
+  shineMesh.renderOrder = 2;
+
+  // ── Group
+  const grp = new THREE.Group();
+  grp.add(haloMesh, heartMesh, gradMesh, wireMesh, glowMesh, shineMesh);
+  grp.rotation.x = -0.15;
+  scene.add(grp);
+
+  // ── Lights (still needed for Phong step 2)
+  const keyL = new THREE.DirectionalLight(0xffccdd, 4);
+  keyL.position.set(3,5,6); keyL.castShadow=true; scene.add(keyL);
+  const fillL = new THREE.DirectionalLight(0xaabbff, 1.5);
+  fillL.position.set(-4,2,2); scene.add(fillL);
+  const rimL = new THREE.DirectionalLight(0xffffff, 2);
+  rimL.position.set(0,-2,-4); scene.add(rimL);
+  scene.add(new THREE.AmbientLight(0x220010, 3));
+
+  // ── Particles
+  const PC=180;
+  const pGeo=new THREE.BufferGeometry();
+  const pBuf=new Float32Array(PC*3);
+  for(let i=0;i<PC;i++){
+    const r=1.7+Math.random()*2.6;
+    const th=Math.random()*Math.PI*2, ph=(Math.random()-.5)*Math.PI;
+    pBuf[i*3]=r*Math.cos(th)*Math.cos(ph);
+    pBuf[i*3+1]=r*Math.sin(ph);
+    pBuf[i*3+2]=r*Math.sin(th)*Math.cos(ph);
+  }
+  pGeo.setAttribute('position',new THREE.BufferAttribute(pBuf,3));
+  const pMat=new THREE.ShaderMaterial({
+    uniforms:{uTime:{value:0},uAlpha:{value:0}},
+    vertexShader:`
+      uniform float uTime; varying float vA;
+      void main(){
+        vA=.25+.5*sin(uTime*.9+position.x*2.1+position.y*1.3+position.z);
+        vec4 mv=modelViewMatrix*vec4(position,1.);
+        gl_PointSize=4.*(160./-mv.z);
+        gl_Position=projectionMatrix*mv;
+      }`,
+    fragmentShader:`
+      varying float vA; uniform float uAlpha;
+      void main(){
+        float d=length(gl_PointCoord-.5)*2.;
+        float a=(1.-smoothstep(.15,.85,d))*vA*uAlpha;
+        gl_FragColor=vec4(1.,.72,.82,a);
+      }`,
+    transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+  });
+  scene.add(new THREE.Points(pGeo,pMat));
+
+  // ── Floor glow circle
+  const floorMat=new THREE.ShaderMaterial({
+    uniforms:{uAlpha:{value:0},uTime:{value:0}},
+    vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`
+      uniform float uAlpha,uTime; varying vec2 vUv;
+      void main(){
+        vec2 c=vUv-.5; float r=length(c);
+        float fade=smoothstep(.5,0.,r);
+        float pulse=sin(uTime*1.5)*.15+.85;
+        vec3 col=vec3(.7,.08,.25)*pulse;
+        gl_FragColor=vec4(col,fade*uAlpha*.65);
+      }`,
+    transparent:true,depthWrite:false,
+  });
+  const floor=new THREE.Mesh(new THREE.CircleGeometry(2.2,64),floorMat);
+  floor.rotation.x=-Math.PI/2; floor.position.y=-1.55;
+  scene.add(floor);
+
+  // ── Drag
+  let drag=false,prev={x:0,y:0},vel={x:0,y:0};
+  cvs.addEventListener('mousedown',e=>{drag=true;prev={x:e.clientX,y:e.clientY};});
+  window.addEventListener('mousemove',e=>{
+    if(!drag)return;
+    vel.y+=(e.clientX-prev.x)*.012; vel.x+=(e.clientY-prev.y)*.012;
+    prev={x:e.clientX,y:e.clientY};
+  });
+  window.addEventListener('mouseup',()=>{drag=false;});
+  cvs.addEventListener('touchstart',e=>{drag=true;prev={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});
+  window.addEventListener('touchmove',e=>{
+    if(!drag)return;
+    vel.y+=(e.touches[0].clientX-prev.x)*.012; vel.x+=(e.touches[0].clientY-prev.y)*.012;
+    prev={x:e.touches[0].clientX,y:e.touches[0].clientY};
+  },{passive:true});
+  window.addEventListener('touchend',()=>{drag=false;});
+
+  // ── State machine
+  window.advanceHeart = function(step){
+    wrap.classList.add('show');
+
+    // step 1 — wireframe
+    wireMat.opacity = (step===1) ? 0.55 : 0;
+
+    // step 2 — solid phong
+    heartMesh.visible = (step===2);
+    gradMesh.visible  = false;
+    if(step===2){ gradMat.uniforms.uVisible.value=0; }
+
+    // step 3 — gradient shader replaces phong
+    if(step>=3){
+      heartMesh.visible=false;
+      gradMesh.visible=true;
+      gradMat.uniforms.uVisible.value=1;
+      wireMat.opacity=0;
+    }
+
+    // step 4 — glow + halo
+    glowMat.uniforms.uIntensity.value  = step>=4 ? 0.85 : 0;
+    haloMat.uniforms.uIntensity.value  = step>=4 ? 1.0  : 0;
+    floorMat.uniforms.uAlpha.value     = step>=4 ? 0.7  : 0;
+
+    // step 5 — specular shine + particles
+    shineMat.uniforms.uIntensity.value = step>=5 ? 1.0  : 0;
+    if(step>=5) pMat.uniforms.uAlpha.value = 1.0;
+
+    // step 6 — boost everything
+    if(step>=6){
+      glowMat.uniforms.uIntensity.value = 1.3;
+      haloMat.uniforms.uIntensity.value = 1.5;
+      shineMat.uniforms.uIntensity.value= 1.6;
+    }
+  };
+
+  // ── Animate loop
+  const clk=new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    const t=clk.getElapsedTime();
+    const step=window._heartStep||0;
+
+    grp.rotation.y+=vel.y; grp.rotation.x+=vel.x;
+    vel.x*=.88; vel.y*=.88;
+    grp.rotation.y+=.005;
+    grp.position.y=Math.sin(t*.75)*.065;
+
+    // heartbeat (step 5+)
+    if(step>=5){
+      const b=1+.038*Math.max(0,Math.sin(t*2.2)*Math.sin(t*2.2));
+      grp.scale.setScalar(b);
+    }
+
+    // tick all uniforms
+    bgMat.uniforms.uTime.value=t;
+    gradMat.uniforms.uTime.value=t;
+    glowMat.uniforms.uTime.value=t;
+    haloMat.uniforms.uTime.value=t;
+    shineMat.uniforms.uTime.value=t;
+    pMat.uniforms.uTime.value=t;
+    floorMat.uniforms.uTime.value=t;
+
+    renderer.render(scene,cam);
+  }
+  animate();
+})();
+
+// ═══════════════════════════════════════════════════════════════
+//  TYPEWRITER ENGINE
+// ═══════════════════════════════════════════════════════════════
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+const MSG = [
+  'Anh không giỏi nói lời hoa mỹ,',
+  'nhưng anh biết rằng —',
+  'mỗi ngày có em, anh thấy',
+  'thế giới này đẹp hơn rất nhiều.',
+  '',
+  'Em là lý do anh muốn',
+  'trở thành phiên bản tốt hơn.',
+  '',
+  'Cảm ơn em đã xuất hiện. ❤',
+];
+
+// [ [text, cssClass], ... ]   — class '' = plain
+const LINES = [
+  {s:[['<!','tk-n'],['DOCTYPE ','tk-k'],['html','tk-s'],['>','tk-n']]},
+  {s:[['<','tk-n'],['html','tk-k'],[' lang','tk-p'],['=','tk-n'],['"vi"','tk-q'],['>','tk-n']]},
+  {s:[['<','tk-n'],['head','tk-k'],['>','tk-n']]},
+  {s:[['  ',''],['<','tk-n'],['meta','tk-k'],[' charset','tk-p'],['=','tk-n'],['"UTF-8"','tk-q'],['/>','tk-n']]},
+  {s:[['</','tk-n'],['head','tk-k'],['>','tk-n']]},
+  {s:[['<','tk-n'],['body','tk-k'],['>','tk-n']]},
+  {s:[['']]},
+  {s:[['<','tk-n'],['style','tk-k'],['>','tk-n']]},
+  {s:[['']]},
+
+  // ── message comment block
+  {s:[['/* ','tk-c']], trigger:'showMsgBox'},
+  {s:[[' * 💌  Lời nhắn gửi em','tk-c']]},
+  {s:[[' *','tk-c']]},
+  ...MSG.map((l,i)=>({s:[[` * ${l}`,'tk-m']], trigger:`msgLine${i}`})),
+  {s:[[' */','tk-c']]},
+  {s:[['']]},
+
+  // body base
+  {s:[['body ','tk-s'],['{','tk-n']]},
+  {s:[['  display','tk-p'],[': ','tk-n'],['flex','tk-v'],[';','tk-n']]},
+  {s:[['  background','tk-p'],[': ','tk-n'],['#08000f','tk-q'],[';','tk-n']]},
+  {s:[['}','tk-n']]},
+  {s:[['']]},
+
+  // STEP 1 — wireframe outline
+  {s:[['/* ✏️  Bước 1 — vẽ khung wireframe 3D */','tk-c']], trigger:'step1'},
+  {s:[['.heart ','tk-s'],['{','tk-n']]},
+  {s:[['  position','tk-p'],[': ','tk-n'],['relative','tk-v'],[';','tk-n']]},
+  {s:[['  width','tk-p'],[': ','tk-n'],['100px','tk-v'],[';','tk-n']]},
+  {s:[['  height','tk-p'],[': ','tk-n'],['90px','tk-v'],[';','tk-n']]},
+  {s:[['}','tk-n']]},
+  {s:[['']]},
+
+  // STEP 2 — solid fill
+  {s:[['/* 🎨  Bước 2 — tô màu nền đỏ */','tk-c']], trigger:'step2'},
+  {s:[['.heart::before','tk-s'],[',','tk-n']]},
+  {s:[['.heart::after ','tk-s'],['{','tk-n']]},
+  {s:[['  content','tk-p'],[': ','tk-n'],["''", 'tk-q'],[';','tk-n']]},
+  {s:[['  background','tk-p'],[': ','tk-n'],['#e0455a','tk-q'],[';','tk-n']]},
+  {s:[['  border-radius','tk-p'],[': ','tk-n'],['52px 52px 0 0','tk-v'],[';','tk-n']]},
+  {s:[['}','tk-n']]},
+  {s:[['']]},
+
+  // STEP 3 — glass / refraction
+  {s:[['/* 🌈  Bước 3 — thủy tinh + refraction */','tk-c']], trigger:'step3'},
+  {s:[['.heart ','tk-s'],['{','tk-n']]},
+  {s:[['  background','tk-p'],[': ','tk-n'],['rgba(255,107,138,.12)','tk-q'],[';','tk-n']]},
+  {s:[['  backdrop-filter','tk-p'],[': ','tk-n'],['blur(12px)','tk-v'],[';','tk-n']]},
+  {s:[['  border','tk-p'],[': ','tk-n'],['1px solid rgba(255,255,255,.25)','tk-q'],[';','tk-n']]},
+  {s:[['  --ior','tk-p'],[': ','tk-n'],['1.78','tk-v'],[';  ','tk-n'],['/* khúc xạ */','tk-c']]},
+  {s:[['  transmission','tk-p'],[': ','tk-n'],['1.0','tk-v'],[';','tk-n']]},
+  {s:[['}','tk-n']]},
+  {s:[['']]},
+
+  // STEP 4 — glow & caustics
+  {s:[['/* ✨  Bước 4 — glass glow + caustics */','tk-c']], trigger:'step4'},
+  {s:[['.heart ','tk-s'],['{','tk-n']]},
+  {s:[['  filter','tk-p'],[': ','tk-n'],['drop-shadow(0 0 28px #ff6b8a)','tk-v'],[';','tk-n']]},
+  {s:[['  box-shadow','tk-p'],[': ','tk-n'],['inset 0 0 40px rgba(255,107,138,.3)','tk-q'],[';','tk-n']]},
+  {s:[['}','tk-n']]},
+  {s:[['']]},
+
+  // STEP 5 — heartbeat + particles
+  {s:[['/* 💓  Bước 5 — nhịp đập + particles */','tk-c']], trigger:'step5'},
+  {s:[['@keyframes ','tk-a'],['heartbeat ','tk-s'],['{','tk-n']]},
+  {s:[['  0%,100%','tk-s'],['{ ','tk-n'],['transform','tk-p'],[': ','tk-n'],['scale(1)','tk-v'],[' }','tk-n']]},
+  {s:[['  14%    ','tk-s'],['{ ','tk-n'],['transform','tk-p'],[': ','tk-n'],['scale(1.12)','tk-v'],[' }','tk-n']]},
+  {s:[['  42%    ','tk-s'],['{ ','tk-n'],['transform','tk-p'],[': ','tk-n'],['scale(1.07)','tk-v'],[' }','tk-n']]},
+  {s:[['}','tk-n']]},
+  {s:[['.heart ','tk-s'],['{','tk-n']]},
+  {s:[['  animation','tk-p'],[': ','tk-n'],['heartbeat','tk-v'],[' 1.4s ','tk-n'],['ease-in-out','tk-v'],[' infinite','tk-v'],[';','tk-n']]},
+  {s:[['}','tk-n']]},
+  {s:[['']]},
+
+  // STEP 6 — pulse ring / crystal final
+  {s:[['/* 💫  Bước 6 — crystal polish + ring */','tk-c']], trigger:'step6'},
+  {s:[['@keyframes ','tk-a'],['ring-out ','tk-s'],['{','tk-n']]},
+  {s:[['  0%   ','tk-s'],['{ ','tk-n'],['opacity','tk-p'],[': ','tk-n'],['1','tk-v'],['; transform','tk-p'],[': ','tk-n'],['scale(1)','tk-v'],[' }','tk-n']]},
+  {s:[['  100% ','tk-s'],['{ ','tk-n'],['opacity','tk-p'],[': ','tk-n'],['0','tk-v'],['; transform','tk-p'],[': ','tk-n'],['scale(1.7)','tk-v'],[' }','tk-n']]},
+  {s:[['}','tk-n']]},
+  {s:[['.heart ','tk-s'],['{','tk-n']]},
+  {s:[['  --ior','tk-p'],[': ','tk-n'],['1.92','tk-v'],[';  ','tk-n'],['/* crystal */','tk-c']]},
+  {s:[['  animation','tk-p'],[': ','tk-n'],['heartbeat','tk-v'],[' 1.4s ','tk-n'],['ease-in-out','tk-v'],[' infinite,','tk-v']]},
+  {s:[['           ',''],['ring-out','tk-v'],[' 2s ','tk-n'],['ease-out','tk-v'],[' infinite','tk-v'],[';','tk-n']]},
+  {s:[['}','tk-n']]},
+  {s:[['']]},
+
+  {s:[['</','tk-n'],['style','tk-k'],['>','tk-n']]},
+  {s:[['']]},
+  {s:[['<','tk-n'],['div ','tk-k'],['class','tk-p'],['=','tk-n'],['"heart"','tk-q'],['>','tk-n'],['</','tk-n'],['div','tk-k'],['>','tk-n']]},
+  {s:[['</','tk-n'],['body','tk-k'],['>','tk-n']]},
+  {s:[['</','tk-n'],['html','tk-k'],['>','tk-n']]},
+  {s:[['']]},
+  {s:[['/* ✅  Hoàn thành! Tặng em với cả tấm lòng 💖 */','tk-c']]},
+];
+
+// ── Trigger map
+window._heartStep = 0;
+
+function setTag(h){ document.getElementById('step-tag').innerHTML = h; }
+function setPv(t){ document.getElementById('pv-status').textContent = t; }
+
+const TRIGGERS = {
+  showMsgBox(){ showMsgBox(); },
+  step1(){ window._heartStep=1; setTimeout(()=>{ window.advanceHeart(1); setTag('✏️ <span class="hl">wireframe</span> — khung 3D'); setPv('Vẽ khung...'); },150); },
+  step2(){ window._heartStep=2; setTimeout(()=>{ window.advanceHeart(2); setTag('🎨 fill: <span class="hl">#e0455a</span> — tô màu'); setPv('Tô màu...'); },150); },
+  step3(){ window._heartStep=3; setTimeout(()=>{ window.advanceHeart(3); setTag('🌈 <span class="hl">transmission</span> + refraction'); setPv('Thủy tinh 💎'); },150); },
+  step4(){ window._heartStep=4; setTimeout(()=>{ window.advanceHeart(4); setTag('✨ <span class="hl">glow</span> + caustics'); setPv('Glowing ✨'); },150); },
+  step5(){ window._heartStep=5; setTimeout(()=>{ window.advanceHeart(5); setTag('💓 <span class="hl">heartbeat</span> + particles'); setPv('Đang đập! 💓'); },150); },
+  step6(){ window._heartStep=6; setTimeout(()=>{ window.advanceHeart(6); setTag('💫 <span class="hl">crystal</span> — hoàn tất 💖'); setPv('Hoàn tất 💖'); },150); },
+};
+MSG.forEach((_,i) => { TRIGGERS[`msgLine${i}`] = () => revealMsgLine(i); });
+
+// ── Typewriter core
+const edEl = document.getElementById('editor');
+let lineIdx=0, charIdx=0, totalChars=0, linesRendered=0, timerId=null;
+let activeContent=null, curEl=null;
+const TOTAL_EXP = LINES.reduce((s,l) => s + l.s.map(x=>x[0]).join('').length + 1, 0);
+
+const plain = segs => segs.map(s=>s[0]).join('');
+
+function renderPart(segs, n) {
+  let rem=n, html='';
+  for (const [t,c] of segs) {
+    if (rem<=0) break;
+    const ch=t.slice(0,rem); rem-=ch.length;
+    html += c ? `<span class="${c}">${esc(ch)}</span>` : esc(ch);
+  }
+  return html;
+}
+
+function newLine(n) {
+  const d = document.createElement('div'); d.className='cl';
+  d.innerHTML = `<span class="ln">${n}</span><span class="lc"></span>`;
+  edEl.appendChild(d); return d;
+}
+function startL() {
+  linesRendered++;
+  const line = newLine(linesRendered);
+  activeContent = line.querySelector('.lc');
+  curEl = document.createElement('span'); curEl.className='cur';
+  activeContent.appendChild(curEl); charIdx=0;
+}
+function upd() {
+  const pct = Math.min(100, Math.round(totalChars/TOTAL_EXP*100));
+  document.getElementById('tb-chars').textContent = totalChars+' chars';
+  document.getElementById('tb-ln').textContent    = `Ln ${linesRendered}  Col ${charIdx+1}`;
+  document.getElementById('sb-pct').textContent   = pct+'%';
+}
+
+function typeStep() {
+  if (lineIdx >= LINES.length) {
+    if(curEl) curEl.remove();
+    document.getElementById('sb-status').textContent = '✅ Hoàn thành! Tặng em với cả tấm lòng 💖';
+    return;
+  }
+  const line = LINES[lineIdx];
+  const p = plain(line.s);
+  if (charIdx===0) startL();
+
+  if (p.length===0) {
+    if(curEl) curEl.remove();
+    lineIdx++; charIdx=0; totalChars++; upd();
+    if (line.trigger && TRIGGERS[line.trigger]) TRIGGERS[line.trigger]();
+    sched(18); return;
+  }
+
+  charIdx++; totalChars++;
+  activeContent.innerHTML = renderPart(line.s, charIdx);
+  activeContent.appendChild(curEl);
+  upd();
+  edEl.scrollTop = edEl.scrollHeight;
+
+  if (charIdx >= p.length) {
+    activeContent.removeChild(curEl);
+    if (line.trigger && TRIGGERS[line.trigger]) TRIGGERS[line.trigger]();
+    lineIdx++; charIdx=0;
+  }
+
+  const isComment = p.trim().startsWith('/*') || p.trim().startsWith('*');
+  let d = isComment ? 11 : 19;
+  d += Math.floor(Math.random()*12) - 4;
+  if (d<5) d=5;
+  sched(d);
+}
+
+function sched(d) { clearTimeout(timerId); timerId = setTimeout(typeStep, d); }
+
+// ── Preview helpers
+let msgLineEls = [];
+function showMsgBox() {
+  document.getElementById('live-msg').classList.add('show');
+  setPv('Hiển thị lời nhắn...');
+}
+function revealMsgLine(idx) {
+  const box = document.getElementById('live-msg');
+  while (msgLineEls.length <= idx) {
+    const sp = document.createElement('span'); sp.className='ml';
+    box.appendChild(sp); msgLineEls.push(sp);
+  }
+  msgLineEls[idx].innerHTML = MSG[idx] || '&nbsp;';
+  requestAnimationFrame(() => msgLineEls[idx].classList.add('in'));
+}
+
+// BOOT
+document.getElementById('sb-status').textContent = 'Đang viết valentine.html...';
+setTimeout(() => sched(25), 700);
+</script>
+</body>
+</html>
