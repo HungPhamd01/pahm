@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-7">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>valentine.html — tự code chính nó 💻</title>
+<title>heart 💻</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=Fraunces:ital,wght@0,300;0,600;1,300;1,500&display=swap');
 
@@ -159,7 +159,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 <!-- TITLEBAR -->
 <div class="titlebar">
   <div class="wdot r"></div><div class="wdot y"></div><div class="wdot g"></div>
-  <div class="tabs"><div class="tab active">❤&nbsp;valentine.html</div></div>
+  <div class="tabs"><div class="tab active">❤&nbsp;indexheart.html</div></div>
   <div class="titlebar-right">
     <span id="tb-chars">0 chars</span>
     <span id="tb-ln">Ln 1  Col 1</span>
@@ -170,8 +170,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-title">Explorer</div>
-    <div class="sidebar-file active"><div class="dot"></div>valentine.html</div>
-    <div class="sidebar-file" style="color:var(--dim);padding-left:36px;font-size:11px;">heart.glsl</div>
+    <div class="sidebar-file active"><div class="dot"></div>indexheart.html</div>
+    <div class="sidebar-file" style="color:var(--dim);padding-left:36px;font-size:11px;">heart.js</div>
     <div class="sidebar-file" style="color:var(--dim);padding-left:36px;font-size:11px;">style.css</div>
   </div>
 
@@ -199,11 +199,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
 <!-- STATUS BAR -->
 <div class="statusbar">
-  <span>HTML</span><span>UTF-8</span>
+  <span>HTML</span><span>UTF-7</span>
   <span id="sb-status">Khởi động...</span>
   <div class="sb-right">
     <span id="sb-pct">0%</span>
-    <span>valentine.html</span>
+    <span>indexheart.html</span>
   </div>
 </div>
 </div>
@@ -608,15 +608,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 const MSG = [
-  'Anh không giỏi nói lời hoa mỹ,',
-  'nhưng anh biết rằng —',
-  'mỗi ngày có em, anh thấy',
-  'thế giới này đẹp hơn rất nhiều.',
+  'Chào những dâu-rể tương lai,....',
+  'Mình là một UI designer,...',
+  'Mình có thể design và code một chút HTML/CSS/JS,...',
+  'Quan trọng mình có thể làm cho bạn một chiếc thiệp cưới online độc nhất cho bạn và người ấy',
   '',
-  'Em là lý do anh muốn',
-  'trở thành phiên bản tốt hơn.',
+  'Giá siêu hạt dẻ, chỉ từ 100K,...',
+  'Có thể xuất danh sách khách mời qua google sheet để mình tiện theo dõi,...',
+  'Bàn giao nhanh chóng chỉ trong 1 ngày',
   '',
-  'Cảm ơn em đã xuất hiện. ❤',
+  'Cuối cùng,... mình có món quà nhỏ tặng bạn ❤',
 ];
 
 // [ [text, cssClass], ... ]   — class '' = plain
@@ -624,7 +625,7 @@ const LINES = [
   {s:[['<!','tk-n'],['DOCTYPE ','tk-k'],['html','tk-s'],['>','tk-n']]},
   {s:[['<','tk-n'],['html','tk-k'],[' lang','tk-p'],['=','tk-n'],['"vi"','tk-q'],['>','tk-n']]},
   {s:[['<','tk-n'],['head','tk-k'],['>','tk-n']]},
-  {s:[['  ',''],['<','tk-n'],['meta','tk-k'],[' charset','tk-p'],['=','tk-n'],['"UTF-8"','tk-q'],['/>','tk-n']]},
+  {s:[['  ',''],['<','tk-n'],['meta','tk-k'],[' charset','tk-p'],['=','tk-n'],['"UTF-7"','tk-q'],['/>','tk-n']]},
   {s:[['</','tk-n'],['head','tk-k'],['>','tk-n']]},
   {s:[['<','tk-n'],['body','tk-k'],['>','tk-n']]},
   {s:[['']]},
@@ -633,7 +634,7 @@ const LINES = [
 
   // ── message comment block
   {s:[['/* ','tk-c']], trigger:'showMsgBox'},
-  {s:[[' * 💌  Lời nhắn gửi em','tk-c']]},
+  {s:[[' * 💌  Mình có đôi lời...','tk-c']]},
   {s:[[' *','tk-c']]},
   ...MSG.map((l,i)=>({s:[[` * ${l}`,'tk-m']], trigger:`msgLine${i}`})),
   {s:[[' */','tk-c']]},
@@ -715,7 +716,7 @@ const LINES = [
   {s:[['</','tk-n'],['body','tk-k'],['>','tk-n']]},
   {s:[['</','tk-n'],['html','tk-k'],['>','tk-n']]},
   {s:[['']]},
-  {s:[['/* ✅  Hoàn thành! Tặng em với cả tấm lòng 💖 */','tk-c']]},
+  {s:[['/* ✅Hmmm xong rồi! Có vẻ đây là hiện thực hóa tình yêu của 2 bạn 💖 */','tk-c']]},
 ];
 
 // ── Trigger map
@@ -775,7 +776,7 @@ function upd() {
 function typeStep() {
   if (lineIdx >= LINES.length) {
     if(curEl) curEl.remove();
-    document.getElementById('sb-status').textContent = '✅ Hoàn thành! Tặng em với cả tấm lòng 💖';
+    document.getElementById('sb-status').textContent = '✅Hmmm xong rồi! Có vẻ đây là hiện thực hóa tình yêu của 2 bạn 💖';
     return;
   }
   const line = LINES[lineIdx];
@@ -827,7 +828,7 @@ function revealMsgLine(idx) {
 }
 
 // BOOT
-document.getElementById('sb-status').textContent = 'Đang viết valentine.html...';
+document.getElementById('sb-status').textContent = 'Đang viết indexheart.html...';
 setTimeout(() => sched(25), 700);
 </script>
 </body>
